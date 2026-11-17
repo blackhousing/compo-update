@@ -3600,7 +3600,7 @@ class OtaRelease {
 }
 
 class OtaService {
-  static const currentVersion = '1.0.0';
+  static const currentVersion = '1.0.2';
   static const defaultRepo = 'blackhousing/compo-update';
 
   static Future<File> _repoFile() async {
