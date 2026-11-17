@@ -539,6 +539,7 @@ class _HomeState extends State<Home> {
     _loadPlayMode();
     _loadPlaylists();
     EqualizerSheet.load(_eq);
+    OtaService.initVersion();
     // Auto play next: saat lagu selesai, lanjut ke lagu berikutnya.
     _sub = _player.processingStateStream.listen((s) {
       if (s == ProcessingState.completed) _next(auto: true);
@@ -2226,9 +2227,9 @@ class _HomeState extends State<Home> {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
-                'Versi 1.0.0 (Build 1)',
-                style: TextStyle(color: Colors.white60, fontSize: 13),
+              Text(
+                'Versi ${OtaService.currentVersion}',
+                style: const TextStyle(color: Colors.white60, fontSize: 13),
               ),
               const SizedBox(height: 16),
               Container(
@@ -3600,8 +3601,24 @@ class OtaRelease {
 }
 
 class OtaService {
-  static const currentVersion = '1.0.2';
+  static String currentVersion = '1.0.2';
   static const defaultRepo = 'blackhousing/compo-update';
+
+  static Future<void> initVersion() async {
+    try {
+      final yamlStr = await rootBundle.loadString('pubspec.yaml');
+      for (final line in yamlStr.split('\n')) {
+        final trimmed = line.trim();
+        if (trimmed.startsWith('version:')) {
+          final v = trimmed.substring('version:'.length).trim();
+          if (v.isNotEmpty) {
+            currentVersion = v.split('+').first.trim();
+          }
+          break;
+        }
+      }
+    } catch (_) {}
+  }
 
   static Future<File> _repoFile() async {
     final base = await appBase();
